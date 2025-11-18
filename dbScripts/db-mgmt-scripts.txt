@@ -1,0 +1,162 @@
+
+
+
+# 🔥 1. **DROP TABLES (Correct Order)**
+
+```sql
+DROP TABLE IF EXISTS practice_history;
+DROP TABLE IF EXISTS questions;
+DROP TABLE IF EXISTS patterns;
+```
+
+---
+
+
+
+# 📝 3. **CREATE: questions**
+
+```sql
+CREATE TABLE questions (
+    id SERIAL PRIMARY KEY,
+
+    topic_id INTEGER NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
+    pattern_id INTEGER NOT NULL REFERENCES patterns(id) ON DELETE CASCADE,
+
+    difficulty TEXT NOT NULL CHECK (difficulty IN ('Easy', 'Medium', 'Hard')),
+
+    question_text TEXT NOT NULL,
+
+    -- Keep correct answer as a plain string
+    correct_answer TEXT NOT NULL,
+
+    -- Two hint formats
+    hint_stats TEXT,
+    hint_python TEXT,
+
+    -- Two solution formats
+    solution_stats TEXT,
+    solution_python TEXT,
+
+    -- For teacher’s own natural-language solution (optional)
+    solution TEXT,
+
+    -- Avoid duplicates (Gemini may generate very similar Qs)
+    CONSTRAINT unique_question UNIQUE (topic_id, pattern_id, question_text)
+);
+```
+
+---
+
+# 📘 4. **CREATE: practice_history**
+
+Includes:
+
+* student remark
+* correct boolean
+* user answer
+
+```sql
+CREATE TABLE practice_history (
+    id SERIAL PRIMARY KEY,
+
+    user_id TEXT NOT NULL,
+    topic_id INTEGER NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
+    pattern_id INTEGER NOT NULL REFERENCES patterns(id) ON DELETE CASCADE,
+    question_id INTEGER NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+
+    difficulty TEXT NOT NULL CHECK (difficulty IN ('Easy', 'Medium', 'Hard')),
+
+    is_correct BOOLEAN NOT NULL,
+    user_answer TEXT NOT NULL,
+
+    -- New: student qualitative remark (optional but important)
+    remark TEXT,
+
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+ALTER TABLE practice_history
+    RENAME COLUMN remark TO student_remark;
+
+ALTER TABLE practice_history
+    ADD COLUMN ai_remark TEXT;
+
+ALTER TABLE practice_history
+    ADD COLUMN used_hint_stats BOOLEAN DEFAULT false;
+
+ALTER TABLE practice_history
+    ADD COLUMN used_hint_python BOOLEAN DEFAULT false;
+
+practice_history (
+    id SERIAL PRIMARY KEY,
+
+    user_id TEXT NOT NULL,
+    topic_id INTEGER NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
+    pattern_id INTEGER NOT NULL REFERENCES patterns(id) ON DELETE CASCADE,
+    question_id INTEGER NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+
+    difficulty TEXT NOT NULL CHECK (difficulty IN ('Easy', 'Medium', 'Hard')),
+
+    is_correct BOOLEAN NOT NULL,
+    user_answer TEXT NOT NULL,
+
+    student_remark TEXT,     -- from UI textbox
+    ai_remark TEXT,          -- from LLM evaluator
+
+    used_hint_stats BOOLEAN DEFAULT false,
+    used_hint_python BOOLEAN DEFAULT false,
+
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+---
+
+# ⚡ 5. **Recommended Indexes**
+
+These dramatically improve performance:
+
+```sql
+CREATE INDEX idx_ph_user ON practice_history (user_id);
+CREATE INDEX idx_ph_question ON practice_history (question_id);
+CREATE INDEX idx_questions_pattern ON questions (pattern_id);
+CREATE INDEX idx_questions_topic ON questions (topic_id);
+```
+
+---
+
+# 🧠 Summary of What’s New
+
+### **patterns**
+
+* preferred_solution_approach TEXT
+
+### **questions**
+
+* hint_stats
+* hint_python
+* solution_stats
+* solution_python
+* correct_answer (unchanged but kept intentionally plain)
+* uniqueness constraints
+
+### **practice_history**
+
+* remark TEXT
+
+---
+
+# 👌 Ready for next step
+
+Tell me what you want next:
+
+### A — Updated teacher UI (pattern creation with preferred approach)
+
+### B — Updated teacher question-generation API (with hints + python solution)
+
+### C — Updated student UI (hint button + remark box + two solution tabs)
+
+### D — Updated student save-attempt route
+
+### E — Updated student get-next-question route
+
+Each will be a **drop-in replacement**, commented, clean, and safe.
