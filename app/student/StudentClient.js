@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
 
-const supabase = supabaseBrowser;
 
 export default function StudentClient() {
   const [userId, setUserId] = useState(null);
