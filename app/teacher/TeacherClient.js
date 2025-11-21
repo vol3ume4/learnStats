@@ -26,7 +26,7 @@ export default function TeacherClient() {
 
   const [loading, setLoading] = useState("");
 
-  // ---------------- AUTH LOAD ----------------
+  // ---------------- AUTH LOAD -----------------
   useEffect(() => {
     async function loadUser() {
       const { data: { user } } = await supabase.auth.getUser();
