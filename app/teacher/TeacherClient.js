@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
 
 export default function TeacherClient() {
+  // ---------- ALL HOOKS AT TOP ----------
   const [userId, setUserId] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
@@ -26,7 +27,7 @@ export default function TeacherClient() {
 
   const [loading, setLoading] = useState("");
 
-  // ---------------- AUTH LOAD -----------------
+  // ---------- AUTH LOAD ----------
   useEffect(() => {
     async function loadUser() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -54,15 +55,16 @@ export default function TeacherClient() {
     loadUser();
   }, []);
 
-if (loadingUser) {
-  return (
-    <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      Loading...
-    </div>
-  );
-}
+  // ---------- SAFE EARLY RETURN ----------
+  if (loadingUser) {
+    return (
+      <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
+        Loading...
+      </div>
+    );
+  }
 
-  // ---------------- Load Topics ----------------
+  // ---------- LOAD TOPICS ----------
   useEffect(() => {
     async function loadTopics() {
       const res = await fetch("/api/student/get-topics");
@@ -72,7 +74,7 @@ if (loadingUser) {
     loadTopics();
   }, []);
 
-  // ---------------- Load Patterns ----------------
+  // ---------- LOAD SAVED PATTERNS ----------
   async function loadSavedPatterns(id) {
     const res = await fetch("/api/student/get-patterns", {
       method: "POST",
@@ -83,6 +85,7 @@ if (loadingUser) {
     setSavedPatterns(data);
   }
 
+  // ---------- SAVE TOPIC APPROACH ----------
   async function saveTopicApproach() {
     await fetch("/api/teacher/save-topic-approach", {
       method: "POST",
@@ -96,6 +99,7 @@ if (loadingUser) {
     alert("Topic-level preferred approach saved.");
   }
 
+  // ---------- SAVE PATTERN APPROACH ----------
   async function savePatternApproach() {
     if (!patternId) return alert("Select a pattern first.");
 
@@ -118,6 +122,7 @@ if (loadingUser) {
     alert("Pattern-level preferred approach saved.");
   }
 
+  // ---------- GENERATE PATTERNS ----------
   async function generatePatterns() {
     if (!topicId) return alert("Select a topic first.");
 
@@ -138,6 +143,7 @@ if (loadingUser) {
     setLoading("");
   }
 
+  // ---------- SAVE PATTERNS ----------
   async function savePatterns() {
     if (selectedPatterns.length === 0) {
       alert("Select at least one pattern.");
@@ -161,6 +167,7 @@ if (loadingUser) {
     setLoading("");
   }
 
+  // ---------- GENERATE QUESTIONS ----------
   async function generateQuestions() {
     if (!patternId) return alert("Select a pattern first.");
 
@@ -188,6 +195,7 @@ if (loadingUser) {
     setLoading("");
   }
 
+  // ---------- SAVE QUESTIONS ----------
   async function saveQuestions() {
     if (!patternId) return alert("Choose a pattern before saving.");
 
@@ -213,25 +221,23 @@ if (loadingUser) {
     setLoading("");
   }
 
+  // ---------- UI ----------
   return (
     <div style={{ padding: "30px", fontFamily: "sans-serif" }}>
       <h1>Teacher Mode</h1>
 
       {loading && (
-        <div
-          style={{
-            marginTop: "10px",
-            padding: "10px",
-            background: "#fff3cd",
-            border: "1px solid #ffeeba",
-          }}
-        >
+        <div style={{
+          marginTop: "10px",
+          padding: "10px",
+          background: "#fff3cd",
+          border: "1px solid #ffeeba",
+        }}>
           {loading}
         </div>
       )}
 
       <h3>1. Select Topic</h3>
-
       <select
         onChange={(e) => {
           const id = Number(e.target.value);
@@ -318,7 +324,6 @@ if (loadingUser) {
           setPatternId(id);
 
           const pObj = savedPatterns.find((p) => p.id === id);
-
           setPatternApproach(pObj?.teacher_preferred_approach || "");
         }}
       >
@@ -346,7 +351,6 @@ if (loadingUser) {
       )}
 
       <p style={{ marginTop: "15px" }}>Difficulty:</p>
-
       <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
         <option>Easy</option>
         <option>Medium</option>

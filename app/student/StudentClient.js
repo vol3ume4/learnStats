@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
 
-
 export default function StudentClient() {
+  // ---------- ALL HOOKS AT TOP ----------
   const [userId, setUserId] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
@@ -23,18 +23,15 @@ export default function StudentClient() {
   const [attemptId, setAttemptId] = useState(null);
 
   const [showSolution, setShowSolution] = useState(false);
-
   const [showHintStats, setShowHintStats] = useState(false);
   const [showHintPython, setShowHintPython] = useState(false);
-
   const [usedHintStats, setUsedHintStats] = useState(false);
   const [usedHintPython, setUsedHintPython] = useState(false);
 
   const [studentRemark, setStudentRemark] = useState("");
-
   const [loading, setLoading] = useState("");
 
-  // ---------------- AUTH LOAD ----------------
+  // ---------- AUTH LOAD ----------
   useEffect(() => {
     async function loadUser() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -47,19 +44,19 @@ export default function StudentClient() {
       setUserId(user.id);
       setLoadingUser(false);
     }
-
     loadUser();
   }, []);
 
-if (loadingUser) {
-  return (
-    <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      Loading...
-    </div>
-  );
-}
+  // ---------- SAFE EARLY RETURN AFTER HOOKS ----------
+  if (loadingUser) {
+    return (
+      <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
+        Loading...
+      </div>
+    );
+  }
 
-  // ---------------- Load Topics ----------------
+  // ---------- LOAD TOPICS ----------
   useEffect(() => {
     loadTopics();
   }, []);
@@ -69,7 +66,7 @@ if (loadingUser) {
     setTopics(await res.json());
   }
 
-  // ---------------- Load Patterns ----------------
+  // ---------- LOAD PATTERNS ----------
   async function loadPatterns(topicId) {
     const res = await fetch("/api/student/get-patterns", {
       method: "POST",
@@ -79,23 +76,20 @@ if (loadingUser) {
     setPatterns(await res.json());
   }
 
-  // ---------------- Reset For New Question ----------------
+  // ---------- RESET ----------
   function resetStateForNewQuestion() {
     setEvaluation("");
     setAnswer("");
-
     setShowSolution(false);
     setShowHintStats(false);
     setShowHintPython(false);
-
     setUsedHintStats(false);
     setUsedHintPython(false);
-
     setStudentRemark("");
     setAttemptId(null);
   }
 
-  // ---------------- Next Question ----------------
+  // ---------- GET NEXT ----------
   async function getNextQuestion() {
     if (!patternId || !difficulty) {
       alert("Select topic, pattern, and difficulty.");
@@ -116,7 +110,6 @@ if (loadingUser) {
     });
 
     const data = await res.json();
-
     if (data.error) {
       alert(data.error);
       setLoading("");
@@ -128,7 +121,7 @@ if (loadingUser) {
     setLoading("");
   }
 
-  // ---------------- Submit Answer ----------------
+  // ---------- SUBMIT ----------
   async function submitAnswer() {
     if (!currentQuestion) return;
 
@@ -156,7 +149,7 @@ if (loadingUser) {
     setLoading("");
   }
 
-  // ---------------- Save Remark ----------------
+  // ---------- SAVE REMARK ----------
   async function saveRemark() {
     if (!attemptId) {
       alert("Submit your answer first.");
@@ -173,31 +166,25 @@ if (loadingUser) {
     });
 
     const data = await res.json();
-
-    if (data.success) {
-      alert("Remark saved.");
-    }
+    if (data.success) alert("Remark saved.");
   }
 
-  // ---------------- UI ----------------
+  // ---------- UI ----------
   return (
     <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
       <h1>Student Mode</h1>
 
       {loading && (
-        <div
-          style={{
-            padding: "10px",
-            marginBottom: "20px",
-            background: "#fff3cd",
-            border: "1px solid #ffeeba"
-          }}
-        >
+        <div style={{
+          padding: "10px",
+          marginBottom: "20px",
+          background: "#fff3cd",
+          border: "1px solid #ffeeba"
+        }}>
           {loading}
         </div>
       )}
 
-      {/* ---------------- Topic ---------------- */}
       <h3>1. Select Topic</h3>
       <select
         onChange={async (e) => {
@@ -217,7 +204,6 @@ if (loadingUser) {
         ))}
       </select>
 
-      {/* ---------------- Pattern ---------------- */}
       {topicId && (
         <>
           <h3>2. Select Pattern</h3>
@@ -238,7 +224,6 @@ if (loadingUser) {
         </>
       )}
 
-      {/* ---------------- Difficulty ---------------- */}
       {patternId && (
         <>
           <h3>3. Select Difficulty</h3>
@@ -251,32 +236,25 @@ if (loadingUser) {
             <option>Hard</option>
           </select>
 
-          <button
-            onClick={getNextQuestion}
-            style={{ marginLeft: "10px", padding: "6px 10px" }}
-          >
+          <button onClick={getNextQuestion} style={{ marginLeft: "10px" }}>
             Get Question
           </button>
         </>
       )}
 
-      {/* ---------------- Question ---------------- */}
       {currentQuestion && (
         <>
-          <h3 style={{ marginTop: "30px" }}>Question</h3>
+          <h3>Question</h3>
 
-          <div
-            style={{
-              background: "#f0f0f0",
-              padding: "12px",
-              marginBottom: "15px",
-              whiteSpace: "pre-wrap"
-            }}
-          >
+          <div style={{
+            background: "#f0f0f0",
+            padding: "12px",
+            marginBottom: "15px",
+            whiteSpace: "pre-wrap"
+          }}>
             {currentQuestion.question_text}
           </div>
 
-          {/* ---------------- Answer Input ---------------- */}
           {!evaluation && (
             <>
               <input
@@ -284,25 +262,20 @@ if (loadingUser) {
                 placeholder="Your answer"
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
-                style={{ padding: "8px", width: "260px" }}
               />
 
-              <button
-                onClick={submitAnswer}
-                style={{ marginLeft: "10px", padding: "8px" }}
-              >
+              <button onClick={submitAnswer} style={{ marginLeft: "10px" }}>
                 Submit
               </button>
             </>
           )}
 
-          {/* ---------------- Hint Buttons ---------------- */}
           <button
             onClick={() => {
               setShowHintStats(!showHintStats);
               setUsedHintStats(true);
             }}
-            style={{ marginLeft: "10px", padding: "8px" }}
+            style={{ marginLeft: "10px" }}
           >
             Hint (Stats)
           </button>
@@ -312,94 +285,75 @@ if (loadingUser) {
               setShowHintPython(!showHintPython);
               setUsedHintPython(true);
             }}
-            style={{ marginLeft: "10px", padding: "8px" }}
+            style={{ marginLeft: "10px" }}
           >
             Hint (Python)
           </button>
 
-          {/* ---------------- Show Solution ---------------- */}
           <button
             onClick={() => setShowSolution(true)}
-            style={{ marginLeft: "10px", padding: "8px" }}
+            style={{ marginLeft: "10px" }}
           >
             Show Answer
           </button>
 
-          {/* ---------------- Next Question ---------------- */}
           <button
             onClick={getNextQuestion}
-            style={{ marginLeft: "10px", padding: "8px" }}
+            style={{ marginLeft: "10px" }}
           >
             Next Question
           </button>
 
-          {/* ---------------- Stats Hint ---------------- */}
           {showHintStats && currentQuestion.hint_stats && (
-            <div
-              style={{
-                marginTop: "20px",
-                background: "#e0edff",
-                padding: "10px",
-                whiteSpace: "pre-wrap"
-              }}
-            >
+            <div style={{
+              marginTop: "20px",
+              background: "#e0edff",
+              padding: "10px",
+              whiteSpace: "pre-wrap"
+            }}>
               <strong>Hint (Stats):</strong>
               <br />
               {currentQuestion.hint_stats}
             </div>
           )}
 
-          {/* ---------------- Python Hint ---------------- */}
           {showHintPython && currentQuestion.hint_python && (
-            <div
-              style={{
-                marginTop: "20px",
-                background: "#e0ffe4",
-                padding: "10px",
-                whiteSpace: "pre-wrap"
-              }}
-            >
+            <div style={{
+              marginTop: "20px",
+              background: "#e0ffe4",
+              padding: "10px",
+              whiteSpace: "pre-wrap"
+            }}>
               <strong>Hint (Python):</strong>
               <br />
               {currentQuestion.hint_python}
             </div>
           )}
 
-          {/* ---------------- Student Remark ---------------- */}
           {evaluation && (
             <div style={{ marginTop: "20px" }}>
               <textarea
-                placeholder="Post-submit remark (feedback, confusion, protest)"
+                placeholder="Post-submit remark"
                 value={studentRemark}
                 onChange={(e) => setStudentRemark(e.target.value)}
-                style={{
-                  width: "400px",
-                  height: "80px",
-                  padding: "8px"
-                }}
+                style={{ width: "400px", height: "80px" }}
               />
 
-              <button
-                onClick={saveRemark}
-                style={{ marginLeft: "10px", padding: "8px" }}
-              >
+              <button onClick={saveRemark} style={{ marginLeft: "10px" }}>
                 Save Remark
               </button>
             </div>
           )}
 
-          {/* ---------------- Evaluation ---------------- */}
           {evaluation && evaluation.correct !== undefined && (
-            <div
-              style={{
-                marginTop: "20px",
-                padding: "12px",
-                borderRadius: "4px",
-                whiteSpace: "pre-wrap",
-                background:
-                  evaluation.correct === true ? "#e2f7e2" : "#ffe5e5"
-              }}
-            >
+            <div style={{
+              marginTop: "20px",
+              padding: "12px",
+              borderRadius: "4px",
+              whiteSpace: "pre-wrap",
+              background:
+                evaluation.correct === true ? "#e2f7e2" : "#ffe5e5"
+            }}>
               <strong>Correct: </strong>
               {evaluation.correct ? "Yes" : "No"}
               <br />
@@ -408,22 +362,17 @@ if (loadingUser) {
             </div>
           )}
 
-          {/* ---------------- Solutions ---------------- */}
           {showSolution && (
-            <div
-              style={{
-                marginTop: "20px",
-                background: "#e8ffe8",
-                padding: "10px",
-                whiteSpace: "pre-wrap"
-              }}
-            >
+            <div style={{
+              marginTop: "20px",
+              background: "#e8ffe8",
+              padding: "10px",
+              whiteSpace: "pre-wrap"
+            }}>
               <strong>Solution (Stats):</strong>
               <br />
               {currentQuestion.solution_stats || "Not provided."}
-
               <br /><br />
-
               <strong>Solution (Python):</strong>
               <br />
               {currentQuestion.solution_python || "Not provided."}
