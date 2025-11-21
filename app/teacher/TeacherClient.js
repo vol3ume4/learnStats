@@ -54,7 +54,13 @@ export default function TeacherClient() {
     loadUser();
   }, []);
 
-  if (loadingUser) return <div>Loading...</div>;
+if (loadingUser) {
+  return (
+    <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
+      Loading...
+    </div>
+  );
+}
 
   // ---------------- Load Topics ----------------
   useEffect(() => {
