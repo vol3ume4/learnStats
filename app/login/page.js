@@ -21,7 +21,21 @@ export default function LoginPage() {
       alert(error.message);
       setLoading(false);
     } else {
-      window.location.href = "/student"; // default landing
+      // Check if teacher
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("is_teacher")
+          .eq("id", user.id)
+          .single();
+
+        if (profile?.is_teacher) {
+          window.location.href = "/teacher";
+        } else {
+          window.location.href = "/student";
+        }
+      }
     }
   }
 
