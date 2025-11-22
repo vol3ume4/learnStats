@@ -54,3 +54,20 @@ If this passes, your keys are correct.
 *   **Build Failed**: Check the "Logs" tab in Vercel. Common issues are missing dependencies or syntax errors.
 *   **Database Error**: Check the "Runtime Logs". If you see connection errors, verify `DATABASE_URL`.
 *   **Login Loop (310)**: If you get "Too many redirects", clear your browser cookies and try again. Ensure your Supabase project URL is correct in the environment variables.
+
+## Step 4: Sharing with Students
+
+1.  **Get the URL**:
+    *   Go to your Vercel Project Dashboard.
+    *   Under **Production Deployment**, you will see a **Domains** section.
+    *   Copy the main domain (usually ending in `.vercel.app`, e.g., `https://learnstats.vercel.app`).
+    *   *Note: Do not share the deployment-specific URL (the one with random letters like `-b3uem0h8c-`) as it refers to a specific version of your code.*
+
+2.  **Onboarding Students**:
+    *   Share the URL with your students.
+    *   Tell them to click **"Sign up"** on the login page.
+    *   Once they sign up, they will automatically be logged in as **Students**.
+
+3.  **Teacher Access**:
+    *   Remember: New users are "Students" by default.
+    *   To make someone a "Teacher", you must manually update their `is_teacher` flag to `TRUE` in your Supabase `profiles` table.

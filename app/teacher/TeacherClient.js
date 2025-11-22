@@ -1,7 +1,8 @@
 //teacher/TeacherClient.js
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
 
 export default function TeacherClient() {
@@ -28,13 +29,19 @@ export default function TeacherClient() {
 
   const [loading, setLoading] = useState("");
 
+  const router = useRouter();
+  const authCheckRan = useRef(false);
+
   // ---------- AUTH LOAD ----------
   useEffect(() => {
+    if (authCheckRan.current) return;
+    authCheckRan.current = true;
+
     async function loadUser() {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
-        window.location.href = "/login";
+        router.push("/login");
         return;
       }
 
@@ -45,7 +52,7 @@ export default function TeacherClient() {
         .single();
 
       if (!profile?.is_teacher) {
-        window.location.href = "/unauthorized";
+        router.push("/unauthorized"); // Or handle appropriately
         return;
       }
 
@@ -231,7 +238,7 @@ export default function TeacherClient() {
           className="btn btn-secondary"
           onClick={async () => {
             await supabase.auth.signOut();
-            window.location.href = "/login";
+            router.push("/login");
           }}
           style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
         >
