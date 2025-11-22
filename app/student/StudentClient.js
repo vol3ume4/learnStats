@@ -28,10 +28,11 @@ export default function StudentClient() {
   const [showSolution, setShowSolution] = useState(false);
   const [showHintStats, setShowHintStats] = useState(false);
   const [showHintPython, setShowHintPython] = useState(false);
-  const [usedHintStats, setUsedHintStats] = useState(false);
-  useEffect(() => {
-    loadTopics();
-  }, []);
+  const [studentRemark, setStudentRemark] = useState("");
+  const [loading, setLoading] = useState("");
+
+  const router = useRouter();
+  const authCheckRan = useRef(false);
 
   async function loadTopics() {
     const res = await fetch("/api/student/get-topics");
