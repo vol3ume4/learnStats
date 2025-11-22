@@ -80,11 +80,20 @@ export default function TeacherClient() {
   }
 
   // ---------- LOAD TOPICS ----------
+  const topicsLoaded = useRef(false);
   useEffect(() => {
+    if (topicsLoaded.current) return;
+    topicsLoaded.current = true;
+
     async function loadTopics() {
-      const res = await fetch("/api/student/get-topics");
-      const data = await res.json();
-      setTopics(data);
+      try {
+        const res = await fetch("/api/student/get-topics");
+        if (!res.ok) throw new Error("Failed to fetch topics");
+        const data = await res.json();
+        setTopics(data);
+      } catch (err) {
+        console.error("Error loading topics:", err);
+      }
     }
     loadTopics();
   }, []);
