@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
 
@@ -29,54 +29,6 @@ export default function StudentClient() {
   const [showHintStats, setShowHintStats] = useState(false);
   const [showHintPython, setShowHintPython] = useState(false);
   const [usedHintStats, setUsedHintStats] = useState(false);
-  const [usedHintPython, setUsedHintPython] = useState(false);
-
-  const [studentRemark, setStudentRemark] = useState("");
-  const [loading, setLoading] = useState("");
-
-  const router = useRouter();
-
-  // ---------- AUTH LOAD ----------
-  useEffect(() => {
-    console.log("StudentClient mounted");
-
-    if (!supabase) {
-      console.error("Supabase client is not initialized. Check environment variables.");
-      return;
-    }
-
-    async function loadUser() {
-      console.log("loadUser started");
-      const { data: { user }, error } = await supabase.auth.getUser();
-      console.log("getUser result:", { user, error });
-
-      if (error) {
-        console.error("Auth Error:", error);
-      }
-
-      if (!user) {
-        console.log("No user found, redirecting to login...");
-        router.push("/login");
-        return;
-      }
-
-      console.log("User found, setting state");
-      setUserId(user.id);
-      setLoadingUser(false);
-    }
-    loadUser();
-  }, [router]);
-
-  // ---------- SAFE EARLY RETURN AFTER HOOKS ----------
-  if (loadingUser) {
-    return (
-      <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
-        Loading...
-      </div>
-    );
-  }
-
-  // ---------- LOAD TOPICS ----------
   useEffect(() => {
     loadTopics();
   }, []);
