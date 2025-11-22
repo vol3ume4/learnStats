@@ -28,15 +28,84 @@ export default function StudentClient() {
   const [showSolution, setShowSolution] = useState(false);
   const [showHintStats, setShowHintStats] = useState(false);
   const [showHintPython, setShowHintPython] = useState(false);
+  const [usedHintStats, setUsedHintStats] = useState(false);
+  const [usedHintPython, setUsedHintPython] = useState(false);
   const [studentRemark, setStudentRemark] = useState("");
   const [loading, setLoading] = useState("");
 
   const router = useRouter();
   const authCheckRan = useRef(false);
 
+  // ---------- AUTH LOAD ----------
+  useEffect(() => {
+    if (authCheckRan.current) return;
+    authCheckRan.current = true;
+
+    console.log("StudentClient mounted - Auth Check");
+
+    if (!supabase) {
+      console.error("Supabase client is not initialized. Check environment variables.");
+      setLoadingUser(false);
+      return;
+    }
+
+    async function loadUser() {
+      console.log("loadUser started");
+      const { data: { user }, error } = await supabase.auth.getUser();
+      console.log("getUser result:", { user, error });
+
+      if (error) {
+        console.error("Auth Error:", error);
+      }
+
+      if (!user) {
+        console.log("No user found, redirecting to login...");
+        router.push("/login");
+        return;
+      }
+
+      console.log("User found, setting state");
+      setUserId(user.id);
+      setLoadingUser(false);
+    }
+    loadUser();
+  }, [router]);
+
+  // ---------- LOAD TOPICS ----------
+  useEffect(() => {
+    loadTopics();
+  }, []);
+
   async function loadTopics() {
-    const res = await fetch("/api/student/get-topics");
-    setTopics(await res.json());
+    try {
+      const res = await fetch("/api/student/get-topics");
+      if (!res.ok) throw new Error(`Failed to load topics: ${res.status}`);
+      const data = await res.json();
+      setTopics(data);
+    } catch (err) {
+      console.error("Error loading topics:", err);
+      // Don't alert immediately to avoid spamming if it's a network blip, 
+      // but log it clearly.
+    }
+  }
+
+  // ---------- SAFE EARLY RETURN AFTER HOOKS ----------
+  if (!supabase) {
+    return (
+      <div style={{ padding: "40px", fontFamily: "sans-serif", color: "red" }}>
+        <h1>Configuration Error</h1>
+        <p>Supabase client could not be initialized.</p>
+        <p>Please check that <code>NEXT_PUBLIC_SUPABASE_URL</code> and <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> are set in your environment variables.</p>
+      </div>
+    );
+  }
+
+  if (loadingUser) {
+    return (
+      <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
+        Loading... (Checking Auth)
+      </div>
+    );
   }
 
   // ---------- LOAD PATTERNS ----------
