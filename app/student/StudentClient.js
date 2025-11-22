@@ -35,8 +35,13 @@ export default function StudentClient() {
 
   // ---------- AUTH LOAD ----------
   useEffect(() => {
+    console.log("StudentClient mounted");
+    console.log("Supabase URL present:", !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+
     async function loadUser() {
+      console.log("loadUser started");
       const { data: { user }, error } = await supabase.auth.getUser();
+      console.log("getUser result:", { user, error });
 
       if (error) {
         console.error("Auth Error:", error);
@@ -48,6 +53,7 @@ export default function StudentClient() {
         return;
       }
 
+      console.log("User found, setting state");
       setUserId(user.id);
       setLoadingUser(false);
     }
