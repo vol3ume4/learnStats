@@ -213,146 +213,174 @@ export default function StudentClient() {
 
   // ---------- UI ----------
   return (
-    <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      <h1>Student Mode</h1>
+    <div className="container">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h1 className="page-title" style={{ margin: 0, textAlign: 'left' }}>Student Mode</h1>
+        <button
+          className="btn btn-secondary"
+          onClick={async () => {
+            await supabase.auth.signOut();
+            router.push("/login");
+          }}
+          style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+        >
+          Sign Out
+        </button>
+      </div>
 
       {loading && (
-        <div style={{
-          padding: "10px",
-          marginBottom: "20px",
-          background: "#fff3cd",
-          border: "1px solid #ffeeba"
-        }}>
+        <div className="alert alert-info">
           {loading}
         </div>
       )}
 
-      <h3>1. Select Topic</h3>
-      <select
-        onChange={async (e) => {
-          const id = Number(e.target.value);
-          setTopicId(id);
-          setPatternId(null);
-          setCurrentQuestion(null);
-          setEvaluation("");
-          await loadPatterns(id);
-        }}
-      >
-        <option>Select…</option>
-        {topics.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.name}
-          </option>
-        ))}
-      </select>
-
-      {topicId && (
-        <>
-          <h3>2. Select Pattern</h3>
+      <div className="card">
+        <h3 className="section-title">1. Select Topic</h3>
+        <div className="form-group">
           <select
-            onChange={(e) => {
-              setPatternId(Number(e.target.value));
+            className="select"
+            onChange={async (e) => {
+              const id = Number(e.target.value);
+              setTopicId(id);
+              setPatternId(null);
               setCurrentQuestion(null);
               setEvaluation("");
+              await loadPatterns(id);
             }}
           >
-            <option>Select…</option>
-            {patterns.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.pattern}
+            <option>Select a topic...</option>
+            {topics.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
               </option>
             ))}
           </select>
-        </>
-      )}
+        </div>
 
-      {patternId && (
-        <>
-          <h3>3. Select Difficulty</h3>
-          <select
-            onChange={(e) => setDifficulty(e.target.value)}
-            value={difficulty}
-          >
-            <option>Easy</option>
-            <option>Medium</option>
-            <option>Hard</option>
-          </select>
+        {topicId && (
+          <>
+            <h3 className="section-title" style={{ marginTop: '1.5rem' }}>2. Select Pattern</h3>
+            <div className="form-group">
+              <select
+                className="select"
+                onChange={(e) => {
+                  setPatternId(Number(e.target.value));
+                  setCurrentQuestion(null);
+                  setEvaluation("");
+                }}
+              >
+                <option>Select a pattern...</option>
+                {patterns.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.pattern}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        )}
 
-          <button onClick={getNextQuestion} style={{ marginLeft: "10px" }}>
-            Get Question
-          </button>
-        </>
-      )}
+        {patternId && (
+          <>
+            <h3 className="section-title" style={{ marginTop: '1.5rem' }}>3. Select Difficulty</h3>
+            <div className="flex-row">
+              <select
+                className="select"
+                style={{ maxWidth: '200px' }}
+                onChange={(e) => setDifficulty(e.target.value)}
+                value={difficulty}
+              >
+                <option>Easy</option>
+                <option>Medium</option>
+                <option>Hard</option>
+              </select>
+
+              <button onClick={getNextQuestion} className="btn">
+                Get Question
+              </button>
+            </div>
+          </>
+        )}
+      </div>
 
       {currentQuestion && (
-        <>
-          <h3>Question</h3>
+        <div className="card" style={{ borderTop: '4px solid var(--primary)' }}>
+          <h3 className="section-title">Question</h3>
 
           <div style={{
-            background: "#f0f0f0",
-            padding: "12px",
-            marginBottom: "15px",
-            whiteSpace: "pre-wrap"
+            background: "var(--background)",
+            padding: "1.5rem",
+            borderRadius: "var(--radius-md)",
+            marginBottom: "1.5rem",
+            whiteSpace: "pre-wrap",
+            fontSize: "1.1rem",
+            lineHeight: "1.6"
           }}>
             {currentQuestion.question_text}
           </div>
 
           {!evaluation && (
-            <>
+            <div className="flex-col">
               <input
+                className="input"
                 type="text"
-                placeholder="Your answer"
+                placeholder="Type your answer here..."
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
               />
 
-              <button onClick={submitAnswer} style={{ marginLeft: "10px" }}>
-                Submit
-              </button>
-            </>
+              <div className="flex-row" style={{ marginTop: '0.5rem' }}>
+                <button onClick={submitAnswer} className="btn">
+                  Submit Answer
+                </button>
+              </div>
+            </div>
           )}
 
-          <button
-            onClick={() => {
-              setShowHintStats(!showHintStats);
-              setUsedHintStats(true);
-            }}
-            style={{ marginLeft: "10px" }}
-          >
-            Hint (Stats)
-          </button>
+          <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+            <div className="flex-row" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
+              <button
+                className={`btn ${showHintStats ? 'btn-secondary' : 'btn-outline'}`}
+                onClick={() => {
+                  setShowHintStats(!showHintStats);
+                  setUsedHintStats(true);
+                }}
+                style={{ fontSize: '0.9rem' }}
+              >
+                {showHintStats ? "Hide Hint (Stats)" : "Show Hint (Stats)"}
+              </button>
 
-          <button
-            onClick={() => {
-              setShowHintPython(!showHintPython);
-              setUsedHintPython(true);
-            }}
-            style={{ marginLeft: "10px" }}
-          >
-            Hint (Python)
-          </button>
+              <button
+                className={`btn ${showHintPython ? 'btn-secondary' : 'btn-outline'}`}
+                onClick={() => {
+                  setShowHintPython(!showHintPython);
+                  setUsedHintPython(true);
+                }}
+                style={{ fontSize: '0.9rem' }}
+              >
+                {showHintPython ? "Hide Hint (Python)" : "Show Hint (Python)"}
+              </button>
 
-          <button
-            onClick={() => setShowSolution(true)}
-            style={{ marginLeft: "10px" }}
-          >
-            Show Answer
-          </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowSolution(true)}
+                style={{ fontSize: '0.9rem', marginLeft: 'auto' }}
+              >
+                Show Full Solution
+              </button>
 
-          <button
-            onClick={getNextQuestion}
-            style={{ marginLeft: "10px" }}
-          >
-            Next Question
-          </button>
+              <button
+                className="btn"
+                onClick={getNextQuestion}
+                style={{ fontSize: '0.9rem' }}
+              >
+                Next Question →
+              </button>
+            </div>
+          </div>
 
           {showHintStats && currentQuestion.hint_stats && (
-            <div style={{
-              marginTop: "20px",
-              background: "#e0edff",
-              padding: "10px",
-              whiteSpace: "pre-wrap"
-            }}>
+            <div className="alert alert-info" style={{ marginTop: '1rem' }}>
               <strong>Hint (Stats):</strong>
               <br />
               {currentQuestion.hint_stats}
@@ -360,12 +388,7 @@ export default function StudentClient() {
           )}
 
           {showHintPython && currentQuestion.hint_python && (
-            <div style={{
-              marginTop: "20px",
-              background: "#e0ffe4",
-              padding: "10px",
-              whiteSpace: "pre-wrap"
-            }}>
+            <div className="alert alert-success" style={{ marginTop: '1rem', background: '#f0fdf4', borderColor: '#bbf7d0', color: '#166534' }}>
               <strong>Hint (Python):</strong>
               <br />
               {currentQuestion.hint_python}
@@ -373,54 +396,61 @@ export default function StudentClient() {
           )}
 
           {evaluation && (
-            <div style={{ marginTop: "20px" }}>
-              <textarea
-                placeholder="Post-submit remark"
-                value={studentRemark}
-                onChange={(e) => setStudentRemark(e.target.value)}
-                style={{ width: "400px", height: "80px" }}
-              />
+            <div style={{ marginTop: "2rem" }}>
+              {evaluation.correct !== undefined && (
+                <div className={evaluation.correct ? "alert alert-success" : "alert alert-error"}>
+                  <strong>Correct: </strong>
+                  {evaluation.correct ? "Yes" : "No"}
+                  <br />
+                  <strong>Remark: </strong>
+                  {evaluation.remark}
+                </div>
+              )}
 
-              <button onClick={saveRemark} style={{ marginLeft: "10px" }}>
-                Save Remark
-              </button>
-            </div>
-          )}
-
-          {evaluation && evaluation.correct !== undefined && (
-            <div style={{
-              marginTop: "20px",
-              padding: "12px",
-              borderRadius: "4px",
-              whiteSpace: "pre-wrap",
-              background:
-                evaluation.correct === true ? "#e2f7e2" : "#ffe5e5"
-            }}>
-              <strong>Correct: </strong>
-              {evaluation.correct ? "Yes" : "No"}
-              <br />
-              <strong>Remark: </strong>
-              {evaluation.remark}
+              <div className="form-group">
+                <label className="label">Add a personal remark (optional):</label>
+                <textarea
+                  className="input"
+                  placeholder="Note down what you learned..."
+                  value={studentRemark}
+                  onChange={(e) => setStudentRemark(e.target.value)}
+                  style={{ minHeight: "80px", resize: "vertical" }}
+                />
+                <div style={{ marginTop: '0.5rem' }}>
+                  <button onClick={saveRemark} className="btn btn-secondary">
+                    Save Remark
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
           {showSolution && (
             <div style={{
-              marginTop: "20px",
-              background: "#e8ffe8",
-              padding: "10px",
-              whiteSpace: "pre-wrap"
+              marginTop: "2rem",
+              background: "#f8fafc",
+              padding: "1.5rem",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--border)"
             }}>
-              <strong>Solution (Stats):</strong>
-              <br />
-              {currentQuestion.solution_stats || "Not provided."}
-              <br /><br />
-              <strong>Solution (Python):</strong>
-              <br />
-              {currentQuestion.solution_python || "Not provided."}
+              <h4 style={{ marginBottom: '1rem', color: 'var(--primary)' }}>Full Solution</h4>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <strong>Statistical Approach:</strong>
+                <div style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', color: 'var(--text-secondary)' }}>
+                  {currentQuestion.solution_stats || "Not provided."}
+                </div>
+              </div>
+
+              <div>
+                <strong>Python Implementation:</strong>
+                <div style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', fontFamily: 'monospace', background: '#1e293b', color: '#e2e8f0', padding: '1rem', borderRadius: 'var(--radius-sm)' }}>
+                  {currentQuestion.solution_python || "Not provided."}
+                </div>
+              </div>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );
