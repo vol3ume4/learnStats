@@ -1,4 +1,3 @@
-//teacher/TeacherClient.js
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -31,6 +30,7 @@ export default function TeacherClient() {
 
   const router = useRouter();
   const authCheckRan = useRef(false);
+  const topicsLoaded = useRef(false);
 
   // ---------- AUTH LOAD ----------
   useEffect(() => {
@@ -70,17 +70,7 @@ export default function TeacherClient() {
     loadUser();
   }, []);
 
-  // ---------- SAFE EARLY RETURN ----------
-  if (loadingUser) {
-    return (
-      <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
-        Loading...
-      </div>
-    );
-  }
-
   // ---------- LOAD TOPICS ----------
-  const topicsLoaded = useRef(false);
   useEffect(() => {
     if (topicsLoaded.current) return;
     topicsLoaded.current = true;
@@ -97,6 +87,15 @@ export default function TeacherClient() {
     }
     loadTopics();
   }, []);
+
+  // ---------- SAFE EARLY RETURN ----------
+  if (loadingUser) {
+    return (
+      <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
+        Loading...
+      </div>
+    );
+  }
 
   // ---------- LOAD SAVED PATTERNS ----------
   async function loadSavedPatterns(id) {
