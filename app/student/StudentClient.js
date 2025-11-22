@@ -36,9 +36,14 @@ export default function StudentClient() {
   // ---------- AUTH LOAD ----------
   useEffect(() => {
     async function loadUser() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("Auth Error:", error);
+      }
 
       if (!user) {
+        console.log("No user found, redirecting to login...");
         window.location.href = "/login";
         return;
       }
