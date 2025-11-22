@@ -3,6 +3,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { supabaseBrowser as supabase } from "@/lib/supabase-browser";
 
 export default function StudentClient() {
@@ -33,10 +34,16 @@ export default function StudentClient() {
   const [studentRemark, setStudentRemark] = useState("");
   const [loading, setLoading] = useState("");
 
+  const router = useRouter();
+
   // ---------- AUTH LOAD ----------
   useEffect(() => {
     console.log("StudentClient mounted");
-    console.log("Supabase URL present:", !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+
+    if (!supabase) {
+      console.error("Supabase client is not initialized. Check environment variables.");
+      return;
+    }
 
     async function loadUser() {
       console.log("loadUser started");
@@ -49,7 +56,7 @@ export default function StudentClient() {
 
       if (!user) {
         console.log("No user found, redirecting to login...");
-        window.location.href = "/login";
+        router.push("/login");
         return;
       }
 
@@ -58,7 +65,7 @@ export default function StudentClient() {
       setLoadingUser(false);
     }
     loadUser();
-  }, []);
+  }, [router]);
 
   // ---------- SAFE EARLY RETURN AFTER HOOKS ----------
   if (loadingUser) {
