@@ -38,24 +38,31 @@ export default function TeacherClient() {
     authCheckRan.current = true;
 
     async function loadUser() {
-      const { data: { user } } = await supabase.auth.getUser();
+      console.log("TeacherClient: Starting auth check...");
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      console.log("TeacherClient: getUser result:", user, authError);
 
       if (!user) {
+        console.log("TeacherClient: No user found, redirecting to /login");
         router.push("/login");
         return;
       }
 
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("is_teacher")
         .eq("id", user.id)
         .single();
 
+      console.log("TeacherClient: Profile result:", profile, profileError);
+
       if (!profile?.is_teacher) {
-        router.push("/unauthorized"); // Or handle appropriately
+        console.log("TeacherClient: Not a teacher, redirecting to /unauthorized");
+        router.push("/unauthorized");
         return;
       }
 
+      console.log("TeacherClient: Auth success, setting user");
       setUserId(user.id);
       setLoadingUser(false);
     }
